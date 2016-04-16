@@ -1,0 +1,75 @@
+Elm.DealTest = Elm.DealTest || {};
+Elm.DealTest.make = function (_elm) {
+   "use strict";
+   _elm.DealTest = _elm.DealTest || {};
+   if (_elm.DealTest.values) return _elm.DealTest.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Deal = Elm.Deal.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $ElmTest = Elm.ElmTest.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var toCard = function (_p0) {    var _p1 = _p0;return {color: _p1._0,number: _p1._1,symbol: _p1._2,shading: _p1._3};};
+   var cardsToModel = function (someCards) {    return {cards: someCards,selected: _U.list([]),isSetSelected: false};};
+   var reshapeTest = A2($ElmTest.test,
+   "Reshape Test",
+   A2($ElmTest.assertEqual,_U.list([_U.list([1,2]),_U.list([3,4])]),A3($Deal.reshape,2,2,_U.list([1,2,3,4]))));
+   var constructImageBasenameTest = A2($ElmTest.test,
+   "constructImageBasename test",
+   A2($ElmTest.assertEqual,
+   "red-one-diamond-solid.png",
+   $Deal.constructImageBasename(toCard({ctor: "_Tuple4",_0: $Deal.Red,_1: $Deal.One,_2: $Deal.Diamond,_3: $Deal.Solid}))));
+   var allCombinationsTest = A2($ElmTest.suite,
+   "allCombinations tests",
+   _U.list([A2($ElmTest.test,"Empty case",A2($ElmTest.assertEqual,_U.list([_U.list([])]),A2($Deal.allCombinations,0,_U.list([]))))
+           ,A2($ElmTest.test,"k=0 case",A2($ElmTest.assertEqual,_U.list([_U.list([])]),A2($Deal.allCombinations,0,_U.list([1]))))
+           ,A2($ElmTest.test,"k=1 case",A2($ElmTest.assertEqual,_U.list([_U.list([1]),_U.list([2])]),A2($Deal.allCombinations,1,_U.list([1,2]))))
+           ,A2($ElmTest.test,
+           "k=2 case",
+           A2($ElmTest.assertEqual,_U.list([_U.list([1,2]),_U.list([1,3]),_U.list([2,3])]),A2($Deal.allCombinations,2,_U.list([1,2,3]))))
+           ,A2($ElmTest.test,
+           "k=3 case",
+           A2($ElmTest.assertEqual,
+           _U.list([_U.list([1,2,3]),_U.list([1,2,4]),_U.list([1,3,4]),_U.list([2,3,4])]),
+           A2($Deal.allCombinations,3,_U.list([1,2,3,4]))))
+           ,A2($ElmTest.test,"k>length case",A2($ElmTest.assertEqual,_U.list([]),A2($Deal.allCombinations,3,_U.list([1,2]))))]));
+   var sampleCardsWithoutSet = A2($List.map,
+   toCard,
+   _U.list([{ctor: "_Tuple4",_0: $Deal.Purple,_1: $Deal.One,_2: $Deal.Diamond,_3: $Deal.Open}
+           ,{ctor: "_Tuple4",_0: $Deal.Purple,_1: $Deal.Two,_2: $Deal.Diamond,_3: $Deal.Open}
+           ,{ctor: "_Tuple4",_0: $Deal.Purple,_1: $Deal.Two,_2: $Deal.Oval,_3: $Deal.Open}]));
+   var sampleCardsWithSet = A2($List.map,
+   toCard,
+   _U.list([{ctor: "_Tuple4",_0: $Deal.Red,_1: $Deal.One,_2: $Deal.Diamond,_3: $Deal.Solid}
+           ,{ctor: "_Tuple4",_0: $Deal.Green,_1: $Deal.Two,_2: $Deal.Diamond,_3: $Deal.Solid}
+           ,{ctor: "_Tuple4",_0: $Deal.Purple,_1: $Deal.Three,_2: $Deal.Diamond,_3: $Deal.Solid}]));
+   var allValidSetsTest = A2($ElmTest.suite,
+   "allValidSets test",
+   _U.list([A2($ElmTest.test,
+           "Three-card list which is a set",
+           A2($ElmTest.assertEqual,_U.list([sampleCardsWithSet]),$Deal.allValidSets(cardsToModel(sampleCardsWithSet))))
+           ,A2($ElmTest.test,"Three-card list which is not a set",A2($ElmTest.assertEqual,_U.list([]),$Deal.allValidSets(cardsToModel(sampleCardsWithoutSet))))
+           ,A2($ElmTest.test,
+           "Six-card list which contains a set",
+           A2($ElmTest.assertEqual,
+           _U.list([sampleCardsWithSet]),
+           $Deal.allValidSets(cardsToModel(A2($Basics._op["++"],sampleCardsWithSet,sampleCardsWithoutSet)))))]));
+   var tests = A2($ElmTest.suite,"All tests",_U.list([allCombinationsTest,allValidSetsTest,reshapeTest]));
+   var main = $ElmTest.elementRunner(tests);
+   return _elm.DealTest.values = {_op: _op
+                                 ,sampleCardsWithSet: sampleCardsWithSet
+                                 ,sampleCardsWithoutSet: sampleCardsWithoutSet
+                                 ,allValidSetsTest: allValidSetsTest
+                                 ,allCombinationsTest: allCombinationsTest
+                                 ,constructImageBasenameTest: constructImageBasenameTest
+                                 ,reshapeTest: reshapeTest
+                                 ,tests: tests
+                                 ,main: main
+                                 ,cardsToModel: cardsToModel
+                                 ,toCard: toCard};
+};

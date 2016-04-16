@@ -1,0 +1,24 @@
+Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values) return _elm.Main.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $CardGenerator = Elm.CardGenerator.make(_elm),
+   $Deal = Elm.Deal.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Random = Elm.Random.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Signal$Time = Elm.Signal.Time.make(_elm),
+   $StartApp$Simple = Elm.StartApp.Simple.make(_elm);
+   var _op = {};
+   var seed = $Random.initialSeed(3);
+   var cards = $Basics.fst(A2($Random.generate,$CardGenerator.cardListGen,seed));
+   var main = $StartApp$Simple.start({model: $Deal.init(cards),update: $Deal.update,view: $Deal.view});
+   var time = A2($Debug.log,"StartTime",$Signal$Time.startTime);
+   return _elm.Main.values = {_op: _op,time: time,seed: seed,cards: cards,main: main};
+};

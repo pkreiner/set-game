@@ -1,0 +1,65 @@
+Elm.SetUtilities = Elm.SetUtilities || {};
+Elm.SetUtilities.make = function (_elm) {
+   "use strict";
+   _elm.SetUtilities = _elm.SetUtilities || {};
+   if (_elm.SetUtilities.values) return _elm.SetUtilities.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var reshape = F3(function (rows,columns,list) {
+      if (_U.eq($List.length(list),0)) return _U.list([]); else {
+            var otherRows = A3(reshape,rows - 1,columns,A2($List.drop,columns,list));
+            var thisRow = A2($List.take,columns,list);
+            return A2($List._op["::"],thisRow,otherRows);
+         }
+   });
+   var allDifferentHelper = F2(function (front,back) {
+      var _p0 = back;
+      if (_p0.ctor === "[]") {
+            return true;
+         } else {
+            var _p1 = _p0._0;
+            return $Basics.not(A2($List.member,_p1,front)) && A2(allDifferentHelper,A2($List._op["::"],_p1,front),_p0._1);
+         }
+   });
+   var allDifferent = function (xs) {    return A2(allDifferentHelper,_U.list([]),xs);};
+   var allSame = function (list) {
+      var _p2 = list;
+      if (_p2.ctor === "[]") {
+            return true;
+         } else {
+            if (_p2._1.ctor === "[]") {
+                  return true;
+               } else {
+                  var _p3 = _p2._1._0;
+                  return _U.eq(_p2._0,_p3) && allSame(A2($List._op["::"],_p3,_p2._1._1));
+               }
+         }
+   };
+   var allSameOrDifferent = function (list) {    return allSame(list) || allDifferent(list);};
+   var allCombinations = F2(function (k,list) {
+      if (_U.cmp(k,0) < 1) return _U.list([_U.list([])]); else {
+            var _p4 = list;
+            if (_p4.ctor === "[]") {
+                  return _U.list([]);
+               } else {
+                  var _p5 = _p4._1;
+                  var withoutFirstElement = A2(allCombinations,k,_p5);
+                  var withFirstElement = A2($List.map,F2(function (x,y) {    return A2($List._op["::"],x,y);})(_p4._0),A2(allCombinations,k - 1,_p5));
+                  return A2($Basics._op["++"],withFirstElement,withoutFirstElement);
+               }
+         }
+   });
+   return _elm.SetUtilities.values = {_op: _op
+                                     ,allCombinations: allCombinations
+                                     ,allSameOrDifferent: allSameOrDifferent
+                                     ,allSame: allSame
+                                     ,allDifferent: allDifferent
+                                     ,allDifferentHelper: allDifferentHelper
+                                     ,reshape: reshape};
+};

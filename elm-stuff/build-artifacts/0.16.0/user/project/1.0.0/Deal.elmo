@@ -1,0 +1,159 @@
+Elm.Deal = Elm.Deal || {};
+Elm.Deal.make = function (_elm) {
+   "use strict";
+   _elm.Deal = _elm.Deal || {};
+   if (_elm.Deal.values) return _elm.Deal.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $SetUtilities = Elm.SetUtilities.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var isValidSet = function (cards) {
+      return _U.eq($List.length(cards),3) && ($SetUtilities.allSameOrDifferent(A2($List.map,
+      function (_) {
+         return _.color;
+      },
+      cards)) && ($SetUtilities.allSameOrDifferent(A2($List.map,function (_) {    return _.number;},cards)) && ($SetUtilities.allSameOrDifferent(A2($List.map,
+      function (_) {
+         return _.symbol;
+      },
+      cards)) && $SetUtilities.allSameOrDifferent(A2($List.map,function (_) {    return _.shading;},cards)))));
+   };
+   var allCardTriples = function (model) {    return A2($SetUtilities.allCombinations,3,model.cards);};
+   var allValidSets = function (_p0) {    return A2($List.filter,isValidSet,allCardTriples(_p0));};
+   var resetModelIfSetFound = function (model) {    return model.isSetSelected ? _U.update(model,{selected: _U.list([])}) : model;};
+   var cardToImageBasename = function (card) {
+      return A3($Basics.flip,
+      $String.append,
+      ".png",
+      A2($String.join,
+      "-",
+      A2($List.map,
+      $String.toLower,
+      _U.list([$Basics.toString(card.color),$Basics.toString(card.number),$Basics.toString(card.symbol),$Basics.toString(card.shading)]))));
+   };
+   var cardToImagePath = function (card) {
+      var baseName = cardToImageBasename(card);
+      var dirName = "images/cards/";
+      return A2($Basics._op["++"],dirName,baseName);
+   };
+   var cardsOfIndices = F2(function (model,indices) {
+      return A2($List.map,
+      function (_p1) {
+         var _p2 = _p1;
+         return _p2._1;
+      },
+      A2($List.filter,
+      function (_p3) {
+         var _p4 = _p3;
+         return A2($List.member,_p4._0,indices);
+      },
+      A2($List.indexedMap,F2(function (v0,v1) {    return {ctor: "_Tuple2",_0: v0,_1: v1};}),model.cards)));
+   });
+   var selectedCards = function (model) {    return A2(cardsOfIndices,model,model.selected);};
+   var setChecker = function (model) {    return _U.update(model,{isSetSelected: isValidSet(selectedCards(model))});};
+   var imgStyle = function (filePath) {
+      var scaling = 0.5;
+      var initialSize = {ctor: "_Tuple2",_0: 296,_1: 421};
+      var size = function (_p5) {    var _p6 = _p5;return {ctor: "_Tuple2",_0: scaling * _p6._0,_1: scaling * _p6._1};}(initialSize);
+      return $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "background-image",_1: A2($Basics._op["++"],"url(\'",A2($Basics._op["++"],filePath,"\')"))}
+                                            ,{ctor: "_Tuple2",_0: "background-size",_1: "cover"}
+                                            ,{ctor: "_Tuple2",_0: "background-position",_1: "center center"}
+                                            ,{ctor: "_Tuple2",_0: "display",_1: "inline-block"}
+                                            ,{ctor: "_Tuple2",_0: "width",_1: A2($Basics._op["++"],$Basics.toString($Basics.fst(size)),"px")}
+                                            ,{ctor: "_Tuple2",_0: "height",_1: A2($Basics._op["++"],$Basics.toString($Basics.snd(size)),"px")}]));
+   };
+   var addGreyBackground = function (element) {    return A2($Graphics$Element.color,$Color.grey,A2($Graphics$Element.opacity,0.5,element));};
+   var update = F2(function (_p7,model) {
+      var _p8 = _p7;
+      var _p9 = _p8._0;
+      return A2($List.member,_p9,model.selected) ? _U.update(model,
+      {selected: A2($List.filter,function (x) {    return !_U.eq(x,_p9);},model.selected)}) : _U.cmp($List.length(model.selected),
+      3) < 0 ? resetModelIfSetFound(setChecker(_U.update(model,{selected: A2($List._op["::"],_p9,model.selected)}))) : model;
+   });
+   var ToggleSelection = function (a) {    return {ctor: "ToggleSelection",_0: a};};
+   var viewCard = function (_p10) {
+      var _p11 = _p10;
+      var height = 210;
+      var width = 148;
+      var imagePath = cardToImagePath(_p11._1);
+      var _p12 = _p11._0;
+      if (_p12.ctor === "Nothing") {
+            return A3($Html.toElement,width,height,A2($Html.div,_U.list([imgStyle(imagePath)]),_U.list([])));
+         } else {
+            return (_p12._0._2 ? addGreyBackground : $Basics.identity)(A3($Html.toElement,
+            width,
+            height,
+            A2($Html.div,_U.list([imgStyle(imagePath),A2($Html$Events.onClick,_p12._0._0,ToggleSelection(_p12._0._1))]),_U.list([]))));
+         }
+   };
+   var view = F2(function (address,model) {
+      var cardsWithAddressAndSelection = A2($List.map,
+      function (_p13) {
+         var _p14 = _p13;
+         var _p15 = _p14._0;
+         return {ctor: "_Tuple2",_0: $Maybe.Just({ctor: "_Tuple3",_0: address,_1: _p15,_2: A2($List.member,_p15,model.selected)}),_1: _p14._1};
+      },
+      A2($List.indexedMap,F2(function (v0,v1) {    return {ctor: "_Tuple2",_0: v0,_1: v1};}),model.cards));
+      var cardViewList = A2($List.map,viewCard,cardsWithAddressAndSelection);
+      var cardViewMatrix = A3($SetUtilities.reshape,3,4,cardViewList);
+      var cardViewGrid = A2($Graphics$Element.flow,$Graphics$Element.down,A2($List.map,$Graphics$Element.flow($Graphics$Element.right),cardViewMatrix));
+      return $Html.fromElement(cardViewGrid);
+   });
+   var init = function (cardList) {    return {cards: cardList,selected: _U.list([]),isSetSelected: false};};
+   var Model = F3(function (a,b,c) {    return {cards: a,selected: b,isSetSelected: c};});
+   var Card = F4(function (a,b,c,d) {    return {color: a,number: b,symbol: c,shading: d};});
+   var Open = {ctor: "Open"};
+   var Striped = {ctor: "Striped"};
+   var Solid = {ctor: "Solid"};
+   var Squiggle = {ctor: "Squiggle"};
+   var Oval = {ctor: "Oval"};
+   var Diamond = {ctor: "Diamond"};
+   var Three = {ctor: "Three"};
+   var Two = {ctor: "Two"};
+   var One = {ctor: "One"};
+   var Purple = {ctor: "Purple"};
+   var Green = {ctor: "Green"};
+   var Red = {ctor: "Red"};
+   return _elm.Deal.values = {_op: _op
+                             ,Red: Red
+                             ,Green: Green
+                             ,Purple: Purple
+                             ,One: One
+                             ,Two: Two
+                             ,Three: Three
+                             ,Diamond: Diamond
+                             ,Oval: Oval
+                             ,Squiggle: Squiggle
+                             ,Solid: Solid
+                             ,Striped: Striped
+                             ,Open: Open
+                             ,Card: Card
+                             ,Model: Model
+                             ,init: init
+                             ,ToggleSelection: ToggleSelection
+                             ,update: update
+                             ,view: view
+                             ,viewCard: viewCard
+                             ,addGreyBackground: addGreyBackground
+                             ,imgStyle: imgStyle
+                             ,cardsOfIndices: cardsOfIndices
+                             ,cardToImagePath: cardToImagePath
+                             ,cardToImageBasename: cardToImageBasename
+                             ,resetModelIfSetFound: resetModelIfSetFound
+                             ,allValidSets: allValidSets
+                             ,allCardTriples: allCardTriples
+                             ,isValidSet: isValidSet
+                             ,selectedCards: selectedCards
+                             ,setChecker: setChecker};
+};
