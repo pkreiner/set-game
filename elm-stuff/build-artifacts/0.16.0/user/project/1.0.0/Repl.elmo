@@ -8,11 +8,14 @@ Elm.Repl.make = function (_elm) {
    $Debug = Elm.Debug.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
+   $Random = Elm.Random.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
    var tsol = {ctor: "_Tuple0"};
-   var add = F2(function (x,y) {    return x + y;});
-   var deltron3030 = A2($List.map,add(2),_U.list([1]));
-   return _elm.Repl.values = {_op: _op,add: add,deltron3030: deltron3030,tsol: tsol};
+   var seed = 0;
+   var gen = function (g) {    return $Basics.fst(A2($Random.generate,g,$Random.initialSeed(0)));};
+   var deltron3030 = Math.pow(9,4);
+   var a = Math.pow(Math.pow(3,4),3);
+   return _elm.Repl.values = {_op: _op,a: a,deltron3030: deltron3030,gen: gen,seed: seed,tsol: tsol};
 };

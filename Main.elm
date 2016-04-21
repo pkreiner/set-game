@@ -6,19 +6,16 @@ import Random
 import Signal.Time exposing (startTime)
 import Debug exposing (log)
 
-time = log "StartTime" startTime
+import Sandbox
+import Trainer
 
-seed = Random.initialSeed 3
-cards = Random.generate cardListGen seed
-     |> fst
+-- main =
+--   start
+--     { model = init cards 3 4
+--     , update = update
+--     , view = view
+--     }
 
-        
-main =
-  start
-    { model = init cards
-    , update = update
-    , view = view
-    }
+-- main = Sandbox.main
 
-
-
+main = Trainer.main

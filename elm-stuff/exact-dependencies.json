@@ -1,6 +1,7 @@
 {
     "laszlopandy/elm-console": "1.1.1",
     "evancz/elm-effects": "2.0.1",
+    "circuithub/elm-list-extra": "3.10.0",
     "Apanatshka/elm-signal-extra": "5.7.0",
     "evancz/virtual-dom": "2.1.0",
     "deadfoxygrandpa/elm-test": "3.1.1",

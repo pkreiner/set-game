@@ -32,33 +32,41 @@ type alias Model =
     { cards : List Card
     , selected : List Index
     , isSetSelected : Bool    
-    -- , rows : Int
-    -- , columns : Int    
+    , rows : Int
+    , columns : Int    
     }
 
-init : List Card -> Model
-init cardList =
+init : List Card -> Int -> Int -> Model
+init cardList r c =
     { cards = cardList
     , selected = []
-    , isSetSelected = False    
+    , isSetSelected = False
+    , rows = r
+    , columns = c
     }
 
 
 -- UPDATE
 
-type Action = ToggleSelection Index
+type Action = NoOp
+            | ToggleSelection Index
 
 update : Action -> Model -> Model
-
-update (ToggleSelection index) model =
-  if List.member index model.selected then
-    { model | selected = List.filter (\x -> x /= index) model.selected }
-  else
-    if List.length model.selected < 3 then
-      { model | selected = index :: model.selected }
-      |> setChecker
-      |> resetModelIfSetFound
-    else
+update action model =
+  case action of
+    (ToggleSelection index) ->
+      if List.member index model.selected then
+        { model | selected = List.filter
+                             (\x -> x /= index)
+                               model.selected }
+      else
+        if List.length model.selected < 3 then
+          { model | selected = index :: model.selected }
+            |> setChecker
+            |> resetModelIfSetFound
+        else
+          model
+    NoOp ->
       model
 
 -- VIEW
@@ -77,13 +85,20 @@ view address model =
       cardViewList : List Element
       cardViewList = List.map viewCard cardsWithAddressAndSelection
       cardViewMatrix : List (List Element)
-      cardViewMatrix = reshape 3 4 cardViewList
+      cardViewMatrix = reshape model.rows model.columns cardViewList
       cardViewGrid : Element
       cardViewGrid = flow down (map (flow right) cardViewMatrix)
   in
     fromElement cardViewGrid
       
-
+viewSimple : List Card -> Int -> Int -> Html
+viewSimple cards rows columns =
+  let dummyAddress = (Signal.mailbox NoOp).address
+      model = init cards rows columns
+  in
+    view dummyAddress model
+  
+                
 viewCard : (Maybe (Signal.Address Action, Index, Bool), Card) -> Element
 viewCard (msgAndSelectionInfo, card) =
   let imagePath = cardToImagePath card
@@ -103,7 +118,6 @@ viewCard (msgAndSelectionInfo, card) =
           |> toElement width height
           |> if isSelected then addGreyBackground else identity
 
-            
 addGreyBackground : Element -> Element
 addGreyBackground element =
   element |> opacity 0.5

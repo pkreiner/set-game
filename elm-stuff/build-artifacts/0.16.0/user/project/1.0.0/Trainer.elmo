@@ -1,0 +1,170 @@
+Elm.Trainer = Elm.Trainer || {};
+Elm.Trainer.make = function (_elm) {
+   "use strict";
+   _elm.Trainer = _elm.Trainer || {};
+   if (_elm.Trainer.values) return _elm.Trainer.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Char = Elm.Char.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Keyboard = Elm.Keyboard.make(_elm),
+   $List = Elm.List.make(_elm),
+   $List$Extra = Elm.List.Extra.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Random = Elm.Random.make(_elm),
+   $Random$Extra = Elm.Random.Extra.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Set = Elm.Set.make(_elm),
+   $SetUtilities = Elm.SetUtilities.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Signal$Extra = Elm.Signal.Extra.make(_elm),
+   $String = Elm.String.make(_elm),
+   $Text = Elm.Text.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var _op = {};
+   var isValidSet = function (cards) {
+      return A2($List.all,F2(function (x,y) {    return _U.eq(x,y);})(true),A2($List.map,$SetUtilities.allSameOrDifferent,$List$Extra.transpose(cards)));
+   };
+   var defaultCard = _U.list(["red","one","diamond","solid"]);
+   var shadings = _U.list(["solid","striped","open"]);
+   var symbols = _U.list(["diamond","oval","squiggle"]);
+   var numbers = _U.list(["one","two","three"]);
+   var colors = _U.list(["red","green","purple"]);
+   var constGen = function (val) {    return A2($Random.map,function (_p0) {    return val;},$Random.bool);};
+   var getNth = F2(function (index,list) {    return $List.head(A2($List.drop,index,list));});
+   var safeGetNth = F3(function ($default,index,list) {    return A2($Maybe.withDefault,$default,A2(getNth,index,list));});
+   var randomlySelectFrom = F2(function ($default,list) {
+      var indexGen = A2($Random.$int,0,$List.length(list) - 1);
+      var valGen = A2($Random.map,function (index) {    return A3(safeGetNth,$default,index,list);},indexGen);
+      return valGen;
+   });
+   var cardGenerator = $Random$Extra.flattenList(A3($List.map2,randomlySelectFrom,defaultCard,_U.list([colors,numbers,symbols,shadings])));
+   var cardsGenerator = A2($Random.list,3,cardGenerator);
+   var validSetGenerator = A2($Random$Extra.keepIf,isValidSet,cardsGenerator);
+   var sometimesValidSetGenerator = function (setProb) {
+      var p = setProb;
+      var q = 1 - p;
+      return A2($Random$Extra.frequency,_U.list([{ctor: "_Tuple2",_0: p,_1: validSetGenerator},{ctor: "_Tuple2",_0: q,_1: cardsGenerator}]),cardsGenerator);
+   };
+   var makeNewCards = function (time) {
+      var seed = $Random.initialSeed($Basics.round($Time.inMilliseconds(time)));
+      return $Basics.fst(A2($Random.generate,sometimesValidSetGenerator(0.5),seed));
+   };
+   var clock = $Time.every(100 * $Time.millisecond);
+   var keypresses = A3($Signal.filterMap,
+   $List.head,
+   $Char.toCode(_U.chr(" ")),
+   A2($Signal.map,$Set.toList,A2($Signal.map,function (_p1) {    var _p2 = _p1;return A2($Set.diff,_p2._1,_p2._0);},$Signal$Extra.deltas($Keyboard.keysDown))));
+   var responses = function () {
+      var spaceCode = $Char.toCode(_U.chr(" "));
+      var interpretKey = function (keycode) {    return _U.eq(keycode,spaceCode);};
+      return A2($Signal.map,interpretKey,keypresses);
+   }();
+   var viewCard = function (card) {
+      var h = 300;
+      var w = 200;
+      var dirName = "images/cards/";
+      var baseName = A2($Basics._op["++"],A2($String.join,"-",card),".png");
+      var fullPath = A2($Basics._op["++"],dirName,baseName);
+      var img = A3($Graphics$Element.image,w,h,fullPath);
+      return img;
+   };
+   var viewCards = function (cards) {    return A2($Graphics$Element.flow,$Graphics$Element.right,A2($List.map,viewCard,cards));};
+   var view = function (_p3) {
+      var _p4 = _p3;
+      var cardsElement = viewCards(_p4.cards);
+      var banner = $Graphics$Element.centered(A2($Text.height,50,A2($Text.color,$Color.black,$Text.fromString(_p4.displayText))));
+      var _p5 = _p4.state;
+      if (_p5.ctor === "BetweenRounds") {
+            return $Graphics$Element.show("");
+         } else {
+            return A2($Graphics$Element.flow,$Graphics$Element.down,_U.list([banner,cardsElement]));
+         }
+   };
+   var Game = F4(function (a,b,c,d) {    return {cards: a,cardsMakeSet: b,state: c,displayText: d};});
+   var StartNextRound = {ctor: "StartNextRound"};
+   var EndRound = {ctor: "EndRound"};
+   var InternalEvent = function (a) {    return {ctor: "InternalEvent",_0: a};};
+   var Input = function (a) {    return {ctor: "Input",_0: a};};
+   var BetweenRounds = {ctor: "BetweenRounds"};
+   var AfterResponse = {ctor: "AfterResponse"};
+   var InRound = {ctor: "InRound"};
+   var defaultGame = {cards: _U.list([]),cardsMakeSet: false,state: InRound,displayText: "Starting game"};
+   var update = F2(function (_p6,game) {
+      var _p7 = _p6;
+      var _p8 = _p7._1;
+      if (_p8.ctor === "Input") {
+            return _U.eq(game.state,InRound) ? _U.eq(_p8._0,game.cardsMakeSet) ? _U.update(game,
+            {state: AfterResponse,displayText: "Correct!"}) : _U.update(game,{state: AfterResponse,displayText: "Nope, sorry."}) : game;
+         } else {
+            var _p9 = _p8._0;
+            if (_p9.ctor === "EndRound") {
+                  return _U.update(game,{state: BetweenRounds,displayText: ""});
+               } else {
+                  var newCards = makeNewCards(_p7._0);
+                  return _U.update(game,
+                  {cards: newCards,cardsMakeSet: isValidSet(newCards),state: InRound,displayText: "SPACE for yes, any other key for no."});
+               }
+         }
+   });
+   var betweenRoundsDelay = 0.5 * $Time.second;
+   var endRoundDelay = 0.5 * $Time.second;
+   var internalEvents = function () {
+      var startNextRoundSignal = A2($Time.delay,betweenRoundsDelay + endRoundDelay,A2($Signal.map,function (_p10) {    return StartNextRound;},responses));
+      var endRoundSignal = A2($Time.delay,endRoundDelay,A2($Signal.map,function (_p11) {    return EndRound;},responses));
+      return A2($Signal.merge,endRoundSignal,startNextRoundSignal);
+   }();
+   var events = A2($Signal.map,$Debug.log("event"),A2($Signal.merge,A2($Signal.map,Input,responses),A2($Signal.map,InternalEvent,internalEvents)));
+   var game = A3($Signal.foldp,update,defaultGame,$Time.timestamp(events));
+   var main = A2($Signal.map,view,game);
+   var _p12 = {ctor: "_Tuple2",_0: 1000,_1: 500};
+   var gameWidth = _p12._0;
+   var gameHeight = _p12._1;
+   var _p13 = {ctor: "_Tuple2",_0: $Basics.round(gameWidth / 2),_1: $Basics.round(gameHeight / 2)};
+   var halfWidth = _p13._0;
+   var halfHeight = _p13._1;
+   return _elm.Trainer.values = {_op: _op
+                                ,gameHeight: gameHeight
+                                ,gameWidth: gameWidth
+                                ,halfHeight: halfHeight
+                                ,halfWidth: halfWidth
+                                ,endRoundDelay: endRoundDelay
+                                ,betweenRoundsDelay: betweenRoundsDelay
+                                ,InRound: InRound
+                                ,AfterResponse: AfterResponse
+                                ,BetweenRounds: BetweenRounds
+                                ,Input: Input
+                                ,InternalEvent: InternalEvent
+                                ,EndRound: EndRound
+                                ,StartNextRound: StartNextRound
+                                ,Game: Game
+                                ,defaultGame: defaultGame
+                                ,update: update
+                                ,view: view
+                                ,viewCards: viewCards
+                                ,viewCard: viewCard
+                                ,main: main
+                                ,game: game
+                                ,events: events
+                                ,keypresses: keypresses
+                                ,responses: responses
+                                ,internalEvents: internalEvents
+                                ,clock: clock
+                                ,makeNewCards: makeNewCards
+                                ,sometimesValidSetGenerator: sometimesValidSetGenerator
+                                ,validSetGenerator: validSetGenerator
+                                ,cardsGenerator: cardsGenerator
+                                ,cardGenerator: cardGenerator
+                                ,randomlySelectFrom: randomlySelectFrom
+                                ,getNth: getNth
+                                ,safeGetNth: safeGetNth
+                                ,constGen: constGen
+                                ,colors: colors
+                                ,numbers: numbers
+                                ,symbols: symbols
+                                ,shadings: shadings
+                                ,defaultCard: defaultCard
+                                ,isValidSet: isValidSet};
+};

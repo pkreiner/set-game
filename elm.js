@@ -8352,6 +8352,556 @@ Elm.Dict.make = function (_elm) {
                              ,toList: toList
                              ,fromList: fromList};
 };
+Elm.Set = Elm.Set || {};
+Elm.Set.make = function (_elm) {
+   "use strict";
+   _elm.Set = _elm.Set || {};
+   if (_elm.Set.values) return _elm.Set.values;
+   var _U = Elm.Native.Utils.make(_elm),$Basics = Elm.Basics.make(_elm),$Dict = Elm.Dict.make(_elm),$List = Elm.List.make(_elm);
+   var _op = {};
+   var foldr = F3(function (f,b,_p0) {    var _p1 = _p0;return A3($Dict.foldr,F3(function (k,_p2,b) {    return A2(f,k,b);}),b,_p1._0);});
+   var foldl = F3(function (f,b,_p3) {    var _p4 = _p3;return A3($Dict.foldl,F3(function (k,_p5,b) {    return A2(f,k,b);}),b,_p4._0);});
+   var toList = function (_p6) {    var _p7 = _p6;return $Dict.keys(_p7._0);};
+   var size = function (_p8) {    var _p9 = _p8;return $Dict.size(_p9._0);};
+   var member = F2(function (k,_p10) {    var _p11 = _p10;return A2($Dict.member,k,_p11._0);});
+   var isEmpty = function (_p12) {    var _p13 = _p12;return $Dict.isEmpty(_p13._0);};
+   var Set_elm_builtin = function (a) {    return {ctor: "Set_elm_builtin",_0: a};};
+   var empty = Set_elm_builtin($Dict.empty);
+   var singleton = function (k) {    return Set_elm_builtin(A2($Dict.singleton,k,{ctor: "_Tuple0"}));};
+   var insert = F2(function (k,_p14) {    var _p15 = _p14;return Set_elm_builtin(A3($Dict.insert,k,{ctor: "_Tuple0"},_p15._0));});
+   var fromList = function (xs) {    return A3($List.foldl,insert,empty,xs);};
+   var map = F2(function (f,s) {    return fromList(A2($List.map,f,toList(s)));});
+   var remove = F2(function (k,_p16) {    var _p17 = _p16;return Set_elm_builtin(A2($Dict.remove,k,_p17._0));});
+   var union = F2(function (_p19,_p18) {    var _p20 = _p19;var _p21 = _p18;return Set_elm_builtin(A2($Dict.union,_p20._0,_p21._0));});
+   var intersect = F2(function (_p23,_p22) {    var _p24 = _p23;var _p25 = _p22;return Set_elm_builtin(A2($Dict.intersect,_p24._0,_p25._0));});
+   var diff = F2(function (_p27,_p26) {    var _p28 = _p27;var _p29 = _p26;return Set_elm_builtin(A2($Dict.diff,_p28._0,_p29._0));});
+   var filter = F2(function (p,_p30) {    var _p31 = _p30;return Set_elm_builtin(A2($Dict.filter,F2(function (k,_p32) {    return p(k);}),_p31._0));});
+   var partition = F2(function (p,_p33) {
+      var _p34 = _p33;
+      var _p35 = A2($Dict.partition,F2(function (k,_p36) {    return p(k);}),_p34._0);
+      var p1 = _p35._0;
+      var p2 = _p35._1;
+      return {ctor: "_Tuple2",_0: Set_elm_builtin(p1),_1: Set_elm_builtin(p2)};
+   });
+   return _elm.Set.values = {_op: _op
+                            ,empty: empty
+                            ,singleton: singleton
+                            ,insert: insert
+                            ,remove: remove
+                            ,isEmpty: isEmpty
+                            ,member: member
+                            ,size: size
+                            ,foldl: foldl
+                            ,foldr: foldr
+                            ,map: map
+                            ,filter: filter
+                            ,partition: partition
+                            ,union: union
+                            ,intersect: intersect
+                            ,diff: diff
+                            ,toList: toList
+                            ,fromList: fromList};
+};
+Elm.List = Elm.List || {};
+Elm.List.Extra = Elm.List.Extra || {};
+Elm.List.Extra.make = function (_elm) {
+   "use strict";
+   _elm.List = _elm.List || {};
+   _elm.List.Extra = _elm.List.Extra || {};
+   if (_elm.List.Extra.values) return _elm.List.Extra.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Set = Elm.Set.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var zip5 = $List.map5(F5(function (v0,v1,v2,v3,v4) {    return {ctor: "_Tuple5",_0: v0,_1: v1,_2: v2,_3: v3,_4: v4};}));
+   var zip4 = $List.map4(F4(function (v0,v1,v2,v3) {    return {ctor: "_Tuple4",_0: v0,_1: v1,_2: v2,_3: v3};}));
+   var zip3 = $List.map3(F3(function (v0,v1,v2) {    return {ctor: "_Tuple3",_0: v0,_1: v1,_2: v2};}));
+   var zip = $List.map2(F2(function (v0,v1) {    return {ctor: "_Tuple2",_0: v0,_1: v1};}));
+   var isPrefixOf = function (prefix) {
+      return function (_p0) {
+         return A2($List.all,$Basics.identity,A3($List.map2,F2(function (x,y) {    return _U.eq(x,y);}),prefix,_p0));
+      };
+   };
+   var isSuffixOf = F2(function (suffix,xs) {    return A2(isPrefixOf,$List.reverse(suffix),$List.reverse(xs));});
+   var selectSplit = function (xs) {
+      var _p1 = xs;
+      if (_p1.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            var _p5 = _p1._1;
+            var _p4 = _p1._0;
+            return A2($List._op["::"],
+            {ctor: "_Tuple3",_0: _U.list([]),_1: _p4,_2: _p5},
+            A2($List.map,
+            function (_p2) {
+               var _p3 = _p2;
+               return {ctor: "_Tuple3",_0: A2($List._op["::"],_p4,_p3._0),_1: _p3._1,_2: _p3._2};
+            },
+            selectSplit(_p5)));
+         }
+   };
+   var select = function (xs) {
+      var _p6 = xs;
+      if (_p6.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            var _p10 = _p6._1;
+            var _p9 = _p6._0;
+            return A2($List._op["::"],
+            {ctor: "_Tuple2",_0: _p9,_1: _p10},
+            A2($List.map,function (_p7) {    var _p8 = _p7;return {ctor: "_Tuple2",_0: _p8._0,_1: A2($List._op["::"],_p9,_p8._1)};},select(_p10)));
+         }
+   };
+   var tailsHelp = F2(function (e,list) {
+      var _p11 = list;
+      if (_p11.ctor === "::") {
+            var _p12 = _p11._0;
+            return A2($List._op["::"],A2($List._op["::"],e,_p12),A2($List._op["::"],_p12,_p11._1));
+         } else {
+            return _U.list([]);
+         }
+   });
+   var tails = A2($List.foldr,tailsHelp,_U.list([_U.list([])]));
+   var isInfixOf = F2(function (infix,xs) {    return A2($List.any,isPrefixOf(infix),tails(xs));});
+   var inits = A2($List.foldr,
+   F2(function (e,acc) {    return A2($List._op["::"],_U.list([]),A2($List.map,F2(function (x,y) {    return A2($List._op["::"],x,y);})(e),acc));}),
+   _U.list([_U.list([])]));
+   var groupByTransitive = F2(function (cmp,xs$) {
+      var _p13 = xs$;
+      if (_p13.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            if (_p13._1.ctor === "[]") {
+                  return _U.list([_U.list([_p13._0])]);
+               } else {
+                  var _p15 = _p13._0;
+                  var _p14 = A2(groupByTransitive,cmp,_p13._1);
+                  if (_p14.ctor === "::") {
+                        return A2(cmp,_p15,_p13._1._0) ? A2($List._op["::"],A2($List._op["::"],_p15,_p14._0),_p14._1) : A2($List._op["::"],
+                        _U.list([_p15]),
+                        _p14);
+                     } else {
+                        return _U.list([]);
+                     }
+               }
+         }
+   });
+   var stripPrefix = F2(function (prefix,xs) {
+      var step = F2(function (e,m) {
+         var _p16 = m;
+         if (_p16.ctor === "Nothing") {
+               return $Maybe.Nothing;
+            } else {
+               if (_p16._0.ctor === "[]") {
+                     return $Maybe.Nothing;
+                  } else {
+                     return _U.eq(e,_p16._0._0) ? $Maybe.Just(_p16._0._1) : $Maybe.Nothing;
+                  }
+            }
+      });
+      return A3($List.foldl,step,$Maybe.Just(xs),prefix);
+   });
+   var dropWhileEnd = function (p) {
+      return A2($List.foldr,F2(function (x,xs) {    return p(x) && $List.isEmpty(xs) ? _U.list([]) : A2($List._op["::"],x,xs);}),_U.list([]));
+   };
+   var takeWhileEnd = function (p) {
+      var step = F2(function (x,_p17) {
+         var _p18 = _p17;
+         var _p19 = _p18._0;
+         return p(x) && _p18._1 ? {ctor: "_Tuple2",_0: A2($List._op["::"],x,_p19),_1: true} : {ctor: "_Tuple2",_0: _p19,_1: false};
+      });
+      return function (_p20) {
+         return $Basics.fst(A3($List.foldr,step,{ctor: "_Tuple2",_0: _U.list([]),_1: true},_p20));
+      };
+   };
+   var splitAt = F2(function (n,xs) {    return {ctor: "_Tuple2",_0: A2($List.take,n,xs),_1: A2($List.drop,n,xs)};});
+   var unfoldr = F2(function (f,seed) {
+      var _p21 = f(seed);
+      if (_p21.ctor === "Nothing") {
+            return _U.list([]);
+         } else {
+            return A2($List._op["::"],_p21._0._0,A2(unfoldr,f,_p21._0._1));
+         }
+   });
+   var scanr1 = F2(function (f,xs$) {
+      var _p22 = xs$;
+      if (_p22.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            if (_p22._1.ctor === "[]") {
+                  return _U.list([_p22._0]);
+               } else {
+                  var _p23 = A2(scanr1,f,_p22._1);
+                  if (_p23.ctor === "::") {
+                        return A2($List._op["::"],A2(f,_p22._0,_p23._0),_p23);
+                     } else {
+                        return _U.list([]);
+                     }
+               }
+         }
+   });
+   var scanr = F3(function (f,acc,xs$) {
+      var _p24 = xs$;
+      if (_p24.ctor === "[]") {
+            return _U.list([acc]);
+         } else {
+            var _p25 = A3(scanr,f,acc,_p24._1);
+            if (_p25.ctor === "::") {
+                  return A2($List._op["::"],A2(f,_p24._0,_p25._0),_p25);
+               } else {
+                  return _U.list([]);
+               }
+         }
+   });
+   var scanl1 = F2(function (f,xs$) {
+      var _p26 = xs$;
+      if (_p26.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            return A3($List.scanl,f,_p26._0,_p26._1);
+         }
+   });
+   var foldr1 = F2(function (f,xs) {
+      var mf = F2(function (x,m) {
+         return $Maybe.Just(function () {    var _p27 = m;if (_p27.ctor === "Nothing") {    return x;} else {    return A2(f,x,_p27._0);}}());
+      });
+      return A3($List.foldr,mf,$Maybe.Nothing,xs);
+   });
+   var foldl1 = F2(function (f,xs) {
+      var mf = F2(function (x,m) {
+         return $Maybe.Just(function () {    var _p28 = m;if (_p28.ctor === "Nothing") {    return x;} else {    return A2(f,_p28._0,x);}}());
+      });
+      return A3($List.foldl,mf,$Maybe.Nothing,xs);
+   });
+   var uniqueHelp = F2(function (existing,remaining) {
+      uniqueHelp: while (true) {
+         var _p29 = remaining;
+         if (_p29.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               var _p31 = _p29._1;
+               var _p30 = _p29._0;
+               if (A2($Set.member,_p30,existing)) {
+                     var _v18 = existing,_v19 = _p31;
+                     existing = _v18;
+                     remaining = _v19;
+                     continue uniqueHelp;
+                  } else return A2($List._op["::"],_p30,A2(uniqueHelp,A2($Set.insert,_p30,existing),_p31));
+            }
+      }
+   });
+   var unique = function (list) {    return A2(uniqueHelp,$Set.empty,list);};
+   var interweaveHelp = F3(function (l1,l2,acc) {
+      interweaveHelp: while (true) {
+         var _p32 = {ctor: "_Tuple2",_0: l1,_1: l2};
+         _v20_1: do {
+            if (_p32._0.ctor === "::") {
+                  if (_p32._1.ctor === "::") {
+                        var _v21 = _p32._0._1,_v22 = _p32._1._1,_v23 = A2($Basics._op["++"],acc,_U.list([_p32._0._0,_p32._1._0]));
+                        l1 = _v21;
+                        l2 = _v22;
+                        acc = _v23;
+                        continue interweaveHelp;
+                     } else {
+                        break _v20_1;
+                     }
+               } else {
+                  if (_p32._1.ctor === "[]") {
+                        break _v20_1;
+                     } else {
+                        return A2($Basics._op["++"],acc,_p32._1);
+                     }
+               }
+         } while (false);
+         return A2($Basics._op["++"],acc,_p32._0);
+      }
+   });
+   var interweave = F2(function (l1,l2) {    return A3(interweaveHelp,l1,l2,_U.list([]));});
+   var permutations = function (xs$) {
+      var _p33 = xs$;
+      if (_p33.ctor === "[]") {
+            return _U.list([_U.list([])]);
+         } else {
+            var f = function (_p34) {
+               var _p35 = _p34;
+               return A2($List.map,F2(function (x,y) {    return A2($List._op["::"],x,y);})(_p35._0),permutations(_p35._1));
+            };
+            return A2($List.concatMap,f,select(_p33));
+         }
+   };
+   var isPermutationOf = F2(function (permut,xs) {    return A2($List.member,permut,permutations(xs));});
+   var subsequencesNonEmpty = function (xs) {
+      var _p36 = xs;
+      if (_p36.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            var _p37 = _p36._0;
+            var f = F2(function (ys,r) {    return A2($List._op["::"],ys,A2($List._op["::"],A2($List._op["::"],_p37,ys),r));});
+            return A2($List._op["::"],_U.list([_p37]),A3($List.foldr,f,_U.list([]),subsequencesNonEmpty(_p36._1)));
+         }
+   };
+   var subsequences = function (xs) {    return A2($List._op["::"],_U.list([]),subsequencesNonEmpty(xs));};
+   var isSubsequenceOf = F2(function (subseq,xs) {    return A2($List.member,subseq,subsequences(xs));});
+   var transpose = function (ll) {
+      transpose: while (true) {
+         var _p38 = ll;
+         if (_p38.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               if (_p38._0.ctor === "[]") {
+                     var _v28 = _p38._1;
+                     ll = _v28;
+                     continue transpose;
+                  } else {
+                     var _p39 = _p38._1;
+                     var tails = A2($List.filterMap,$List.tail,_p39);
+                     var heads = A2($List.filterMap,$List.head,_p39);
+                     return A2($List._op["::"],A2($List._op["::"],_p38._0._0,heads),transpose(A2($List._op["::"],_p38._0._1,tails)));
+                  }
+            }
+      }
+   };
+   var intercalate = function (xs) {    return function (_p40) {    return $List.concat(A2($List.intersperse,xs,_p40));};};
+   var removeWhen = F2(function (pred,list) {    return A2($List.filter,function (_p41) {    return $Basics.not(pred(_p41));},list);});
+   var singleton = function (x) {    return _U.list([x]);};
+   var replaceIf = F3(function (predicate,replacement,list) {
+      return A2($List.map,function (item) {    return predicate(item) ? replacement : item;},list);
+   });
+   var findIndices = function (p) {
+      return function (_p42) {
+         return A2($List.map,
+         $Basics.fst,
+         A2($List.filter,
+         function (_p43) {
+            var _p44 = _p43;
+            return p(_p44._1);
+         },
+         A2($List.indexedMap,F2(function (v0,v1) {    return {ctor: "_Tuple2",_0: v0,_1: v1};}),_p42)));
+      };
+   };
+   var findIndex = function (p) {    return function (_p45) {    return $List.head(A2(findIndices,p,_p45));};};
+   var elemIndices = function (x) {    return findIndices(F2(function (x,y) {    return _U.eq(x,y);})(x));};
+   var elemIndex = function (x) {    return findIndex(F2(function (x,y) {    return _U.eq(x,y);})(x));};
+   var find = F2(function (predicate,list) {
+      find: while (true) {
+         var _p46 = list;
+         if (_p46.ctor === "[]") {
+               return $Maybe.Nothing;
+            } else {
+               var _p47 = _p46._0;
+               if (predicate(_p47)) return $Maybe.Just(_p47); else {
+                     var _v31 = predicate,_v32 = _p46._1;
+                     predicate = _v31;
+                     list = _v32;
+                     continue find;
+                  }
+            }
+      }
+   });
+   var notMember = function (x) {    return function (_p48) {    return $Basics.not(A2($List.member,x,_p48));};};
+   var andThen = $Basics.flip($List.concatMap);
+   var lift2 = F3(function (f,la,lb) {    return A2(andThen,la,function (a) {    return A2(andThen,lb,function (b) {    return _U.list([A2(f,a,b)]);});});});
+   var lift3 = F4(function (f,la,lb,lc) {
+      return A2(andThen,
+      la,
+      function (a) {
+         return A2(andThen,lb,function (b) {    return A2(andThen,lc,function (c) {    return _U.list([A3(f,a,b,c)]);});});
+      });
+   });
+   var lift4 = F5(function (f,la,lb,lc,ld) {
+      return A2(andThen,
+      la,
+      function (a) {
+         return A2(andThen,
+         lb,
+         function (b) {
+            return A2(andThen,lc,function (c) {    return A2(andThen,ld,function (d) {    return _U.list([A4(f,a,b,c,d)]);});});
+         });
+      });
+   });
+   var andMap = F2(function (fl,l) {    return A3($List.map2,F2(function (x,y) {    return x(y);}),fl,l);});
+   var dropDuplicates = function (list) {
+      var step = F2(function (next,_p49) {
+         var _p50 = _p49;
+         var _p52 = _p50._0;
+         var _p51 = _p50._1;
+         return A2($Set.member,next,_p52) ? {ctor: "_Tuple2",_0: _p52,_1: _p51} : {ctor: "_Tuple2"
+                                                                                  ,_0: A2($Set.insert,next,_p52)
+                                                                                  ,_1: A2($List._op["::"],next,_p51)};
+      });
+      return $List.reverse($Basics.snd(A3($List.foldl,step,{ctor: "_Tuple2",_0: $Set.empty,_1: _U.list([])},list)));
+   };
+   var dropWhile = F2(function (predicate,list) {
+      dropWhile: while (true) {
+         var _p53 = list;
+         if (_p53.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               if (predicate(_p53._0)) {
+                     var _v35 = predicate,_v36 = _p53._1;
+                     predicate = _v35;
+                     list = _v36;
+                     continue dropWhile;
+                  } else return list;
+            }
+      }
+   });
+   var takeWhile = F2(function (predicate,list) {
+      var _p54 = list;
+      if (_p54.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            var _p55 = _p54._0;
+            return predicate(_p55) ? A2($List._op["::"],_p55,A2(takeWhile,predicate,_p54._1)) : _U.list([]);
+         }
+   });
+   var span = F2(function (p,xs) {    return {ctor: "_Tuple2",_0: A2(takeWhile,p,xs),_1: A2(dropWhile,p,xs)};});
+   var $break = function (p) {    return span(function (_p56) {    return $Basics.not(p(_p56));});};
+   var groupBy = F2(function (eq,xs$) {
+      var _p57 = xs$;
+      if (_p57.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            var _p59 = _p57._0;
+            var _p58 = A2(span,eq(_p59),_p57._1);
+            var ys = _p58._0;
+            var zs = _p58._1;
+            return A2($List._op["::"],A2($List._op["::"],_p59,ys),A2(groupBy,eq,zs));
+         }
+   });
+   var group = groupBy(F2(function (x,y) {    return _U.eq(x,y);}));
+   var minimumBy = F2(function (f,ls) {
+      var minBy = F2(function (x,_p60) {
+         var _p61 = _p60;
+         var _p62 = _p61._1;
+         var fx = f(x);
+         return _U.cmp(fx,_p62) < 0 ? {ctor: "_Tuple2",_0: x,_1: fx} : {ctor: "_Tuple2",_0: _p61._0,_1: _p62};
+      });
+      var _p63 = ls;
+      if (_p63.ctor === "::") {
+            if (_p63._1.ctor === "[]") {
+                  return $Maybe.Just(_p63._0);
+               } else {
+                  var _p64 = _p63._0;
+                  return $Maybe.Just($Basics.fst(A3($List.foldl,minBy,{ctor: "_Tuple2",_0: _p64,_1: f(_p64)},_p63._1)));
+               }
+         } else {
+            return $Maybe.Nothing;
+         }
+   });
+   var maximumBy = F2(function (f,ls) {
+      var maxBy = F2(function (x,_p65) {
+         var _p66 = _p65;
+         var _p67 = _p66._1;
+         var fx = f(x);
+         return _U.cmp(fx,_p67) > 0 ? {ctor: "_Tuple2",_0: x,_1: fx} : {ctor: "_Tuple2",_0: _p66._0,_1: _p67};
+      });
+      var _p68 = ls;
+      if (_p68.ctor === "::") {
+            if (_p68._1.ctor === "[]") {
+                  return $Maybe.Just(_p68._0);
+               } else {
+                  var _p69 = _p68._0;
+                  return $Maybe.Just($Basics.fst(A3($List.foldl,maxBy,{ctor: "_Tuple2",_0: _p69,_1: f(_p69)},_p68._1)));
+               }
+         } else {
+            return $Maybe.Nothing;
+         }
+   });
+   var uncons = function (xs) {
+      var _p70 = xs;
+      if (_p70.ctor === "[]") {
+            return $Maybe.Nothing;
+         } else {
+            return $Maybe.Just({ctor: "_Tuple2",_0: _p70._0,_1: _p70._1});
+         }
+   };
+   var iterate = F2(function (f,x) {
+      var _p71 = f(x);
+      if (_p71.ctor === "Just") {
+            return A2($List._op["::"],x,A2(iterate,f,_p71._0));
+         } else {
+            return _U.list([x]);
+         }
+   });
+   var getAt = F2(function (xs,idx) {    return $List.head(A2($List.drop,idx,xs));});
+   _op["!!"] = getAt;
+   var init = function () {
+      var maybe = F2(function (d,f) {    return function (_p72) {    return A2($Maybe.withDefault,d,A2($Maybe.map,f,_p72));};});
+      return A2($List.foldr,
+      function (_p73) {
+         return A2(F2(function (x,y) {    return function (_p74) {    return x(y(_p74));};}),
+         $Maybe.Just,
+         A2(maybe,_U.list([]),F2(function (x,y) {    return A2($List._op["::"],x,y);})(_p73)));
+      },
+      $Maybe.Nothing);
+   }();
+   var last = foldl1($Basics.flip($Basics.always));
+   return _elm.List.Extra.values = {_op: _op
+                                   ,last: last
+                                   ,init: init
+                                   ,getAt: getAt
+                                   ,uncons: uncons
+                                   ,minimumBy: minimumBy
+                                   ,maximumBy: maximumBy
+                                   ,andMap: andMap
+                                   ,andThen: andThen
+                                   ,takeWhile: takeWhile
+                                   ,dropWhile: dropWhile
+                                   ,dropDuplicates: dropDuplicates
+                                   ,replaceIf: replaceIf
+                                   ,singleton: singleton
+                                   ,removeWhen: removeWhen
+                                   ,iterate: iterate
+                                   ,intercalate: intercalate
+                                   ,transpose: transpose
+                                   ,subsequences: subsequences
+                                   ,permutations: permutations
+                                   ,interweave: interweave
+                                   ,unique: unique
+                                   ,foldl1: foldl1
+                                   ,foldr1: foldr1
+                                   ,scanl1: scanl1
+                                   ,scanr: scanr
+                                   ,scanr1: scanr1
+                                   ,unfoldr: unfoldr
+                                   ,splitAt: splitAt
+                                   ,takeWhileEnd: takeWhileEnd
+                                   ,dropWhileEnd: dropWhileEnd
+                                   ,span: span
+                                   ,$break: $break
+                                   ,stripPrefix: stripPrefix
+                                   ,group: group
+                                   ,groupBy: groupBy
+                                   ,groupByTransitive: groupByTransitive
+                                   ,inits: inits
+                                   ,tails: tails
+                                   ,select: select
+                                   ,selectSplit: selectSplit
+                                   ,isPrefixOf: isPrefixOf
+                                   ,isSuffixOf: isSuffixOf
+                                   ,isInfixOf: isInfixOf
+                                   ,isSubsequenceOf: isSubsequenceOf
+                                   ,isPermutationOf: isPermutationOf
+                                   ,notMember: notMember
+                                   ,find: find
+                                   ,elemIndex: elemIndex
+                                   ,elemIndices: elemIndices
+                                   ,findIndex: findIndex
+                                   ,findIndices: findIndices
+                                   ,zip: zip
+                                   ,zip3: zip3
+                                   ,zip4: zip4
+                                   ,zip5: zip5
+                                   ,lift2: lift2
+                                   ,lift3: lift3
+                                   ,lift4: lift4};
+};
 Elm.Native.Json = {};
 
 Elm.Native.Json.make = function(localRuntime) {
@@ -8969,6 +9519,253 @@ Elm.Json.Decode.make = function (_elm) {
                                     ,andThen: andThen
                                     ,value: value
                                     ,customDecoder: customDecoder};
+};
+Elm.Native.Keyboard = {};
+
+Elm.Native.Keyboard.make = function(localRuntime) {
+	localRuntime.Native = localRuntime.Native || {};
+	localRuntime.Native.Keyboard = localRuntime.Native.Keyboard || {};
+	if (localRuntime.Native.Keyboard.values)
+	{
+		return localRuntime.Native.Keyboard.values;
+	}
+
+	var NS = Elm.Native.Signal.make(localRuntime);
+
+
+	function keyEvent(event)
+	{
+		return {
+			alt: event.altKey,
+			meta: event.metaKey,
+			keyCode: event.keyCode
+		};
+	}
+
+
+	function keyStream(node, eventName, handler)
+	{
+		var stream = NS.input(eventName, { alt: false, meta: false, keyCode: 0 });
+
+		localRuntime.addListener([stream.id], node, eventName, function(e) {
+			localRuntime.notify(stream.id, handler(e));
+		});
+
+		return stream;
+	}
+
+	var downs = keyStream(document, 'keydown', keyEvent);
+	var ups = keyStream(document, 'keyup', keyEvent);
+	var presses = keyStream(document, 'keypress', keyEvent);
+	var blurs = keyStream(window, 'blur', function() { return null; });
+
+
+	return localRuntime.Native.Keyboard.values = {
+		downs: downs,
+		ups: ups,
+		blurs: blurs,
+		presses: presses
+	};
+};
+
+Elm.Keyboard = Elm.Keyboard || {};
+Elm.Keyboard.make = function (_elm) {
+   "use strict";
+   _elm.Keyboard = _elm.Keyboard || {};
+   if (_elm.Keyboard.values) return _elm.Keyboard.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Char = Elm.Char.make(_elm),
+   $Native$Keyboard = Elm.Native.Keyboard.make(_elm),
+   $Set = Elm.Set.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var presses = A2($Signal.map,function (_) {    return _.keyCode;},$Native$Keyboard.presses);
+   var toXY = F2(function (_p0,keyCodes) {
+      var _p1 = _p0;
+      var is = function (keyCode) {    return A2($Set.member,keyCode,keyCodes) ? 1 : 0;};
+      return {x: is(_p1.right) - is(_p1.left),y: is(_p1.up) - is(_p1.down)};
+   });
+   var Directions = F4(function (a,b,c,d) {    return {up: a,down: b,left: c,right: d};});
+   var dropMap = F2(function (f,signal) {    return $Signal.dropRepeats(A2($Signal.map,f,signal));});
+   var EventInfo = F3(function (a,b,c) {    return {alt: a,meta: b,keyCode: c};});
+   var Blur = {ctor: "Blur"};
+   var Down = function (a) {    return {ctor: "Down",_0: a};};
+   var Up = function (a) {    return {ctor: "Up",_0: a};};
+   var rawEvents = $Signal.mergeMany(_U.list([A2($Signal.map,Up,$Native$Keyboard.ups)
+                                             ,A2($Signal.map,Down,$Native$Keyboard.downs)
+                                             ,A2($Signal.map,$Basics.always(Blur),$Native$Keyboard.blurs)]));
+   var empty = {alt: false,meta: false,keyCodes: $Set.empty};
+   var update = F2(function (event,model) {
+      var _p2 = event;
+      switch (_p2.ctor)
+      {case "Down": var _p3 = _p2._0;
+           return {alt: _p3.alt,meta: _p3.meta,keyCodes: A2($Set.insert,_p3.keyCode,model.keyCodes)};
+         case "Up": var _p4 = _p2._0;
+           return {alt: _p4.alt,meta: _p4.meta,keyCodes: A2($Set.remove,_p4.keyCode,model.keyCodes)};
+         default: return empty;}
+   });
+   var model = A3($Signal.foldp,update,empty,rawEvents);
+   var alt = A2(dropMap,function (_) {    return _.alt;},model);
+   var meta = A2(dropMap,function (_) {    return _.meta;},model);
+   var keysDown = A2(dropMap,function (_) {    return _.keyCodes;},model);
+   var arrows = A2(dropMap,toXY({up: 38,down: 40,left: 37,right: 39}),keysDown);
+   var wasd = A2(dropMap,toXY({up: 87,down: 83,left: 65,right: 68}),keysDown);
+   var isDown = function (keyCode) {    return A2(dropMap,$Set.member(keyCode),keysDown);};
+   var ctrl = isDown(17);
+   var shift = isDown(16);
+   var space = isDown(32);
+   var enter = isDown(13);
+   var Model = F3(function (a,b,c) {    return {alt: a,meta: b,keyCodes: c};});
+   return _elm.Keyboard.values = {_op: _op
+                                 ,arrows: arrows
+                                 ,wasd: wasd
+                                 ,enter: enter
+                                 ,space: space
+                                 ,ctrl: ctrl
+                                 ,shift: shift
+                                 ,alt: alt
+                                 ,meta: meta
+                                 ,isDown: isDown
+                                 ,keysDown: keysDown
+                                 ,presses: presses};
+};
+Elm.Native = Elm.Native || {};
+Elm.Native.Mouse = {};
+Elm.Native.Mouse.make = function(localRuntime) {
+	localRuntime.Native = localRuntime.Native || {};
+	localRuntime.Native.Mouse = localRuntime.Native.Mouse || {};
+	if (localRuntime.Native.Mouse.values)
+	{
+		return localRuntime.Native.Mouse.values;
+	}
+
+	var NS = Elm.Native.Signal.make(localRuntime);
+	var Utils = Elm.Native.Utils.make(localRuntime);
+
+	var position = NS.input('Mouse.position', Utils.Tuple2(0, 0));
+
+	var isDown = NS.input('Mouse.isDown', false);
+
+	var clicks = NS.input('Mouse.clicks', Utils.Tuple0);
+
+	var node = localRuntime.isFullscreen()
+		? document
+		: localRuntime.node;
+
+	localRuntime.addListener([clicks.id], node, 'click', function click() {
+		localRuntime.notify(clicks.id, Utils.Tuple0);
+	});
+	localRuntime.addListener([isDown.id], node, 'mousedown', function down() {
+		localRuntime.notify(isDown.id, true);
+	});
+	localRuntime.addListener([isDown.id], node, 'mouseup', function up() {
+		localRuntime.notify(isDown.id, false);
+	});
+	localRuntime.addListener([position.id], node, 'mousemove', function move(e) {
+		localRuntime.notify(position.id, Utils.getXY(e));
+	});
+
+	return localRuntime.Native.Mouse.values = {
+		position: position,
+		isDown: isDown,
+		clicks: clicks
+	};
+};
+
+Elm.Mouse = Elm.Mouse || {};
+Elm.Mouse.make = function (_elm) {
+   "use strict";
+   _elm.Mouse = _elm.Mouse || {};
+   if (_elm.Mouse.values) return _elm.Mouse.values;
+   var _U = Elm.Native.Utils.make(_elm),$Basics = Elm.Basics.make(_elm),$Native$Mouse = Elm.Native.Mouse.make(_elm),$Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var clicks = $Native$Mouse.clicks;
+   var isDown = $Native$Mouse.isDown;
+   var position = $Native$Mouse.position;
+   var x = A2($Signal.map,$Basics.fst,position);
+   var y = A2($Signal.map,$Basics.snd,position);
+   return _elm.Mouse.values = {_op: _op,position: position,x: x,y: y,isDown: isDown,clicks: clicks};
+};
+Elm.Native = Elm.Native || {};
+Elm.Native.Window = {};
+Elm.Native.Window.make = function make(localRuntime) {
+	localRuntime.Native = localRuntime.Native || {};
+	localRuntime.Native.Window = localRuntime.Native.Window || {};
+	if (localRuntime.Native.Window.values)
+	{
+		return localRuntime.Native.Window.values;
+	}
+
+	var NS = Elm.Native.Signal.make(localRuntime);
+	var Tuple2 = Elm.Native.Utils.make(localRuntime).Tuple2;
+
+
+	function getWidth()
+	{
+		return localRuntime.node.clientWidth;
+	}
+
+
+	function getHeight()
+	{
+		if (localRuntime.isFullscreen())
+		{
+			return window.innerHeight;
+		}
+		return localRuntime.node.clientHeight;
+	}
+
+
+	var dimensions = NS.input('Window.dimensions', Tuple2(getWidth(), getHeight()));
+
+
+	function resizeIfNeeded()
+	{
+		// Do not trigger event if the dimensions have not changed.
+		// This should be most of the time.
+		var w = getWidth();
+		var h = getHeight();
+		if (dimensions.value._0 === w && dimensions.value._1 === h)
+		{
+			return;
+		}
+
+		setTimeout(function() {
+			// Check again to see if the dimensions have changed.
+			// It is conceivable that the dimensions have changed
+			// again while some other event was being processed.
+			w = getWidth();
+			h = getHeight();
+			if (dimensions.value._0 === w && dimensions.value._1 === h)
+			{
+				return;
+			}
+			localRuntime.notify(dimensions.id, Tuple2(w, h));
+		}, 0);
+	}
+
+
+	localRuntime.addListener([dimensions.id], window, 'resize', resizeIfNeeded);
+
+
+	return localRuntime.Native.Window.values = {
+		dimensions: dimensions,
+		resizeIfNeeded: resizeIfNeeded
+	};
+};
+
+Elm.Window = Elm.Window || {};
+Elm.Window.make = function (_elm) {
+   "use strict";
+   _elm.Window = _elm.Window || {};
+   if (_elm.Window.values) return _elm.Window.values;
+   var _U = Elm.Native.Utils.make(_elm),$Basics = Elm.Basics.make(_elm),$Native$Window = Elm.Native.Window.make(_elm),$Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var dimensions = $Native$Window.dimensions;
+   var width = A2($Signal.map,$Basics.fst,dimensions);
+   var height = A2($Signal.map,$Basics.snd,dimensions);
+   return _elm.Window.values = {_op: _op,dimensions: dimensions,width: width,height: height};
 };
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
@@ -11301,44 +12098,54 @@ Elm.Deal.make = function (_elm) {
                                             ,{ctor: "_Tuple2",_0: "height",_1: A2($Basics._op["++"],$Basics.toString($Basics.snd(size)),"px")}]));
    };
    var addGreyBackground = function (element) {    return A2($Graphics$Element.color,$Color.grey,A2($Graphics$Element.opacity,0.5,element));};
-   var update = F2(function (_p7,model) {
-      var _p8 = _p7;
-      var _p9 = _p8._0;
-      return A2($List.member,_p9,model.selected) ? _U.update(model,
-      {selected: A2($List.filter,function (x) {    return !_U.eq(x,_p9);},model.selected)}) : _U.cmp($List.length(model.selected),
-      3) < 0 ? resetModelIfSetFound(setChecker(_U.update(model,{selected: A2($List._op["::"],_p9,model.selected)}))) : model;
+   var update = F2(function (action,model) {
+      var _p7 = action;
+      if (_p7.ctor === "ToggleSelection") {
+            var _p8 = _p7._0;
+            return A2($List.member,_p8,model.selected) ? _U.update(model,
+            {selected: A2($List.filter,function (x) {    return !_U.eq(x,_p8);},model.selected)}) : _U.cmp($List.length(model.selected),
+            3) < 0 ? resetModelIfSetFound(setChecker(_U.update(model,{selected: A2($List._op["::"],_p8,model.selected)}))) : model;
+         } else {
+            return model;
+         }
    });
    var ToggleSelection = function (a) {    return {ctor: "ToggleSelection",_0: a};};
-   var viewCard = function (_p10) {
-      var _p11 = _p10;
+   var viewCard = function (_p9) {
+      var _p10 = _p9;
       var height = 210;
       var width = 148;
-      var imagePath = cardToImagePath(_p11._1);
-      var _p12 = _p11._0;
-      if (_p12.ctor === "Nothing") {
+      var imagePath = cardToImagePath(_p10._1);
+      var _p11 = _p10._0;
+      if (_p11.ctor === "Nothing") {
             return A3($Html.toElement,width,height,A2($Html.div,_U.list([imgStyle(imagePath)]),_U.list([])));
          } else {
-            return (_p12._0._2 ? addGreyBackground : $Basics.identity)(A3($Html.toElement,
+            return (_p11._0._2 ? addGreyBackground : $Basics.identity)(A3($Html.toElement,
             width,
             height,
-            A2($Html.div,_U.list([imgStyle(imagePath),A2($Html$Events.onClick,_p12._0._0,ToggleSelection(_p12._0._1))]),_U.list([]))));
+            A2($Html.div,_U.list([imgStyle(imagePath),A2($Html$Events.onClick,_p11._0._0,ToggleSelection(_p11._0._1))]),_U.list([]))));
          }
    };
    var view = F2(function (address,model) {
       var cardsWithAddressAndSelection = A2($List.map,
-      function (_p13) {
-         var _p14 = _p13;
-         var _p15 = _p14._0;
-         return {ctor: "_Tuple2",_0: $Maybe.Just({ctor: "_Tuple3",_0: address,_1: _p15,_2: A2($List.member,_p15,model.selected)}),_1: _p14._1};
+      function (_p12) {
+         var _p13 = _p12;
+         var _p14 = _p13._0;
+         return {ctor: "_Tuple2",_0: $Maybe.Just({ctor: "_Tuple3",_0: address,_1: _p14,_2: A2($List.member,_p14,model.selected)}),_1: _p13._1};
       },
       A2($List.indexedMap,F2(function (v0,v1) {    return {ctor: "_Tuple2",_0: v0,_1: v1};}),model.cards));
       var cardViewList = A2($List.map,viewCard,cardsWithAddressAndSelection);
-      var cardViewMatrix = A3($SetUtilities.reshape,3,4,cardViewList);
+      var cardViewMatrix = A3($SetUtilities.reshape,model.rows,model.columns,cardViewList);
       var cardViewGrid = A2($Graphics$Element.flow,$Graphics$Element.down,A2($List.map,$Graphics$Element.flow($Graphics$Element.right),cardViewMatrix));
       return $Html.fromElement(cardViewGrid);
    });
-   var init = function (cardList) {    return {cards: cardList,selected: _U.list([]),isSetSelected: false};};
-   var Model = F3(function (a,b,c) {    return {cards: a,selected: b,isSetSelected: c};});
+   var NoOp = {ctor: "NoOp"};
+   var init = F3(function (cardList,r,c) {    return {cards: cardList,selected: _U.list([]),isSetSelected: false,rows: r,columns: c};});
+   var viewSimple = F3(function (cards,rows,columns) {
+      var model = A3(init,cards,rows,columns);
+      var dummyAddress = $Signal.mailbox(NoOp).address;
+      return A2(view,dummyAddress,model);
+   });
+   var Model = F5(function (a,b,c,d,e) {    return {cards: a,selected: b,isSetSelected: c,rows: d,columns: e};});
    var Card = F4(function (a,b,c,d) {    return {color: a,number: b,symbol: c,shading: d};});
    var Open = {ctor: "Open"};
    var Striped = {ctor: "Striped"};
@@ -11368,9 +12175,11 @@ Elm.Deal.make = function (_elm) {
                              ,Card: Card
                              ,Model: Model
                              ,init: init
+                             ,NoOp: NoOp
                              ,ToggleSelection: ToggleSelection
                              ,update: update
                              ,view: view
+                             ,viewSimple: viewSimple
                              ,viewCard: viewCard
                              ,addGreyBackground: addGreyBackground
                              ,imgStyle: imgStyle
@@ -11426,6 +12235,202 @@ Elm.CardGenerator.make = function (_elm) {
    var cardListGen = A2($Random.list,numberOfCards,cardGen);
    return _elm.CardGenerator.values = {_op: _op,cardGen: cardGen,cardListGen: cardListGen,sampleCardsWithSet: sampleCardsWithSet};
 };
+Elm.Sandbox = Elm.Sandbox || {};
+Elm.Sandbox.make = function (_elm) {
+   "use strict";
+   _elm.Sandbox = _elm.Sandbox || {};
+   if (_elm.Sandbox.values) return _elm.Sandbox.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Mouse = Elm.Mouse.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var _op = {};
+   var main = A3($Graphics$Element.image,500,500,"images/cards/red-three-oval-open.png");
+   var Down = {ctor: "Down"};
+   var Up = {ctor: "Up"};
+   var B = {ctor: "B"};
+   var clickB = A2($Time.delay,$Time.second,A2($Signal.map,function (_p0) {    return B;},$Mouse.clicks));
+   var A = {ctor: "A"};
+   var clickA = A2($Time.delay,$Time.second,A2($Signal.map,function (_p1) {    return A;},$Mouse.clicks));
+   var bothClicks = A2($Signal.merge,clickB,clickA);
+   return _elm.Sandbox.values = {_op: _op,A: A,B: B,Up: Up,Down: Down,main: main,clickA: clickA,clickB: clickB,bothClicks: bothClicks};
+};
+Elm.Trainer = Elm.Trainer || {};
+Elm.Trainer.make = function (_elm) {
+   "use strict";
+   _elm.Trainer = _elm.Trainer || {};
+   if (_elm.Trainer.values) return _elm.Trainer.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Char = Elm.Char.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Keyboard = Elm.Keyboard.make(_elm),
+   $List = Elm.List.make(_elm),
+   $List$Extra = Elm.List.Extra.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Random = Elm.Random.make(_elm),
+   $Random$Extra = Elm.Random.Extra.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Set = Elm.Set.make(_elm),
+   $SetUtilities = Elm.SetUtilities.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Signal$Extra = Elm.Signal.Extra.make(_elm),
+   $String = Elm.String.make(_elm),
+   $Text = Elm.Text.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var _op = {};
+   var isValidSet = function (cards) {
+      return A2($List.all,F2(function (x,y) {    return _U.eq(x,y);})(true),A2($List.map,$SetUtilities.allSameOrDifferent,$List$Extra.transpose(cards)));
+   };
+   var defaultCard = _U.list(["red","one","diamond","solid"]);
+   var shadings = _U.list(["solid","striped","open"]);
+   var symbols = _U.list(["diamond","oval","squiggle"]);
+   var numbers = _U.list(["one","two","three"]);
+   var colors = _U.list(["red","green","purple"]);
+   var constGen = function (val) {    return A2($Random.map,function (_p0) {    return val;},$Random.bool);};
+   var getNth = F2(function (index,list) {    return $List.head(A2($List.drop,index,list));});
+   var safeGetNth = F3(function ($default,index,list) {    return A2($Maybe.withDefault,$default,A2(getNth,index,list));});
+   var randomlySelectFrom = F2(function ($default,list) {
+      var indexGen = A2($Random.$int,0,$List.length(list) - 1);
+      var valGen = A2($Random.map,function (index) {    return A3(safeGetNth,$default,index,list);},indexGen);
+      return valGen;
+   });
+   var cardGenerator = $Random$Extra.flattenList(A3($List.map2,randomlySelectFrom,defaultCard,_U.list([colors,numbers,symbols,shadings])));
+   var cardsGenerator = A2($Random.list,3,cardGenerator);
+   var validSetGenerator = A2($Random$Extra.keepIf,isValidSet,cardsGenerator);
+   var sometimesValidSetGenerator = function (setProb) {
+      var p = setProb;
+      var q = 1 - p;
+      return A2($Random$Extra.frequency,_U.list([{ctor: "_Tuple2",_0: p,_1: validSetGenerator},{ctor: "_Tuple2",_0: q,_1: cardsGenerator}]),cardsGenerator);
+   };
+   var makeNewCards = function (time) {
+      var seed = $Random.initialSeed($Basics.round($Time.inMilliseconds(time)));
+      return $Basics.fst(A2($Random.generate,sometimesValidSetGenerator(0.5),seed));
+   };
+   var clock = $Time.every(100 * $Time.millisecond);
+   var keypresses = A3($Signal.filterMap,
+   $List.head,
+   $Char.toCode(_U.chr(" ")),
+   A2($Signal.map,$Set.toList,A2($Signal.map,function (_p1) {    var _p2 = _p1;return A2($Set.diff,_p2._1,_p2._0);},$Signal$Extra.deltas($Keyboard.keysDown))));
+   var responses = function () {
+      var spaceCode = $Char.toCode(_U.chr(" "));
+      var interpretKey = function (keycode) {    return _U.eq(keycode,spaceCode);};
+      return A2($Signal.map,interpretKey,keypresses);
+   }();
+   var viewCard = function (card) {
+      var h = 300;
+      var w = 200;
+      var dirName = "images/cards/";
+      var baseName = A2($Basics._op["++"],A2($String.join,"-",card),".png");
+      var fullPath = A2($Basics._op["++"],dirName,baseName);
+      var img = A3($Graphics$Element.image,w,h,fullPath);
+      return img;
+   };
+   var viewCards = function (cards) {    return A2($Graphics$Element.flow,$Graphics$Element.right,A2($List.map,viewCard,cards));};
+   var view = function (_p3) {
+      var _p4 = _p3;
+      var cardsElement = viewCards(_p4.cards);
+      var banner = $Graphics$Element.centered(A2($Text.height,50,A2($Text.color,$Color.black,$Text.fromString(_p4.displayText))));
+      var _p5 = _p4.state;
+      if (_p5.ctor === "BetweenRounds") {
+            return $Graphics$Element.show("");
+         } else {
+            return A2($Graphics$Element.flow,$Graphics$Element.down,_U.list([banner,cardsElement]));
+         }
+   };
+   var Game = F4(function (a,b,c,d) {    return {cards: a,cardsMakeSet: b,state: c,displayText: d};});
+   var StartNextRound = {ctor: "StartNextRound"};
+   var EndRound = {ctor: "EndRound"};
+   var InternalEvent = function (a) {    return {ctor: "InternalEvent",_0: a};};
+   var Input = function (a) {    return {ctor: "Input",_0: a};};
+   var BetweenRounds = {ctor: "BetweenRounds"};
+   var AfterResponse = {ctor: "AfterResponse"};
+   var InRound = {ctor: "InRound"};
+   var defaultGame = {cards: _U.list([]),cardsMakeSet: false,state: InRound,displayText: "Starting game"};
+   var update = F2(function (_p6,game) {
+      var _p7 = _p6;
+      var _p8 = _p7._1;
+      if (_p8.ctor === "Input") {
+            return _U.eq(game.state,InRound) ? _U.eq(_p8._0,game.cardsMakeSet) ? _U.update(game,
+            {state: AfterResponse,displayText: "Correct!"}) : _U.update(game,{state: AfterResponse,displayText: "Nope, sorry."}) : game;
+         } else {
+            var _p9 = _p8._0;
+            if (_p9.ctor === "EndRound") {
+                  return _U.update(game,{state: BetweenRounds,displayText: ""});
+               } else {
+                  var newCards = makeNewCards(_p7._0);
+                  return _U.update(game,
+                  {cards: newCards,cardsMakeSet: isValidSet(newCards),state: InRound,displayText: "SPACE for yes, any other key for no."});
+               }
+         }
+   });
+   var betweenRoundsDelay = 0.5 * $Time.second;
+   var endRoundDelay = 0.5 * $Time.second;
+   var internalEvents = function () {
+      var startNextRoundSignal = A2($Time.delay,betweenRoundsDelay + endRoundDelay,A2($Signal.map,function (_p10) {    return StartNextRound;},responses));
+      var endRoundSignal = A2($Time.delay,endRoundDelay,A2($Signal.map,function (_p11) {    return EndRound;},responses));
+      return A2($Signal.merge,endRoundSignal,startNextRoundSignal);
+   }();
+   var events = A2($Signal.map,$Debug.log("event"),A2($Signal.merge,A2($Signal.map,Input,responses),A2($Signal.map,InternalEvent,internalEvents)));
+   var game = A3($Signal.foldp,update,defaultGame,$Time.timestamp(events));
+   var main = A2($Signal.map,view,game);
+   var _p12 = {ctor: "_Tuple2",_0: 1000,_1: 500};
+   var gameWidth = _p12._0;
+   var gameHeight = _p12._1;
+   var _p13 = {ctor: "_Tuple2",_0: $Basics.round(gameWidth / 2),_1: $Basics.round(gameHeight / 2)};
+   var halfWidth = _p13._0;
+   var halfHeight = _p13._1;
+   return _elm.Trainer.values = {_op: _op
+                                ,gameHeight: gameHeight
+                                ,gameWidth: gameWidth
+                                ,halfHeight: halfHeight
+                                ,halfWidth: halfWidth
+                                ,endRoundDelay: endRoundDelay
+                                ,betweenRoundsDelay: betweenRoundsDelay
+                                ,InRound: InRound
+                                ,AfterResponse: AfterResponse
+                                ,BetweenRounds: BetweenRounds
+                                ,Input: Input
+                                ,InternalEvent: InternalEvent
+                                ,EndRound: EndRound
+                                ,StartNextRound: StartNextRound
+                                ,Game: Game
+                                ,defaultGame: defaultGame
+                                ,update: update
+                                ,view: view
+                                ,viewCards: viewCards
+                                ,viewCard: viewCard
+                                ,main: main
+                                ,game: game
+                                ,events: events
+                                ,keypresses: keypresses
+                                ,responses: responses
+                                ,internalEvents: internalEvents
+                                ,clock: clock
+                                ,makeNewCards: makeNewCards
+                                ,sometimesValidSetGenerator: sometimesValidSetGenerator
+                                ,validSetGenerator: validSetGenerator
+                                ,cardsGenerator: cardsGenerator
+                                ,cardGenerator: cardGenerator
+                                ,randomlySelectFrom: randomlySelectFrom
+                                ,getNth: getNth
+                                ,safeGetNth: safeGetNth
+                                ,constGen: constGen
+                                ,colors: colors
+                                ,numbers: numbers
+                                ,symbols: symbols
+                                ,shadings: shadings
+                                ,defaultCard: defaultCard
+                                ,isValidSet: isValidSet};
+};
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
    "use strict";
@@ -11433,20 +12438,13 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
-   $CardGenerator = Elm.CardGenerator.make(_elm),
-   $Deal = Elm.Deal.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Random = Elm.Random.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $Signal$Time = Elm.Signal.Time.make(_elm),
-   $StartApp$Simple = Elm.StartApp.Simple.make(_elm);
+   $Trainer = Elm.Trainer.make(_elm);
    var _op = {};
-   var seed = $Random.initialSeed(3);
-   var cards = $Basics.fst(A2($Random.generate,$CardGenerator.cardListGen,seed));
-   var main = $StartApp$Simple.start({model: $Deal.init(cards),update: $Deal.update,view: $Deal.view});
-   var time = A2($Debug.log,"StartTime",$Signal$Time.startTime);
-   return _elm.Main.values = {_op: _op,time: time,seed: seed,cards: cards,main: main};
+   var main = $Trainer.main;
+   return _elm.Main.values = {_op: _op,main: main};
 };
