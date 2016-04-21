@@ -14,6 +14,8 @@ import Mouse
 import Signal.Time
 import Signal.Extra
 
+import Trainer
+
 
 -- -- MODEL
 
@@ -125,10 +127,20 @@ type Event = A | B
 type State = Up | Down
            
 
-main :  Element.Element
-main = Element.image 500 500 "images/cards/red-three-oval-open.png"
+-- main :  Element.Element
+main = Html.text <| toString <| (numberOfSets, n, fractionAreSets)
 
-       
+n = 100000
+  
+randomSets = Random.generate (Random.list n Trainer.cardsGenerator)
+             (Random.initialSeed 0)
+             |> fst
+
+numberOfSets = List.length <| List.filter Trainer.isValidSet randomSets
+                
+fractionAreSets =
+  (toFloat numberOfSets) / n
+          
 clickA : Signal Event
 clickA = Mouse.clicks |> Signal.map (\_ -> A) |> Time.delay (Time.second)
 

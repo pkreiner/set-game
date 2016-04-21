@@ -119,6 +119,7 @@ viewCard card =
       img = Graphics.Element.image w h fullPath
   in
     img
+    |> Debug.log ("showing card " ++ baseName)
 
 
 -- SIGNALS
@@ -139,7 +140,6 @@ game = Signal.foldp update defaultGame (Time.timestamp events)
 events : Signal Event
 events = Signal.merge (Signal.map Input responses)
                       (Signal.map InternalEvent internalEvents)
-         |> Signal.map (Debug.log "event")
 
 -- A discrete signal of keypresses. If more than one key is pressed at
 -- a time, this will throw all but one away.
@@ -188,7 +188,7 @@ makeNewCards time =
   let seed : Random.Seed
       seed = time |> Time.inMilliseconds |> round |> Random.initialSeed
   in
-    Random.generate (sometimesValidSetGenerator 0.5) seed |> fst
+    Random.generate (sometimesValidSetGenerator 0.2) seed |> fst
 
 -- Generates a length-3 list that is a set with probability slightly
 -- greater than p.
@@ -198,12 +198,47 @@ sometimesValidSetGenerator setProb =
       q = 1 - p
   in
     Random.Extra.frequency
-          [(p, validSetGenerator), (q, cardsGenerator)]
+          [(p, validSetGenerator), (q, offByOneSetGenerator)]
           cardsGenerator
   
 validSetGenerator : Random.Generator (List Card)
 validSetGenerator = Random.Extra.keepIf isValidSet cardsGenerator
-      
+
+offByOneSetGenerator : Random.Generator (List Card)
+offByOneSetGenerator =
+  Random.map4
+  (\ set i j k ->
+     let transposedSet = List.Extra.transpose set
+         defaultProperties = ["red", "red", "red"]
+         propertiesToMutate = safeGetNth defaultProperties i
+                              transposedSet
+         elementToMutate = safeGetNth "red" j propertiesToMutate
+     
+         allProperties = [colors, numbers, symbols, shadings]
+         relevantProperties = safeGetNth colors i allProperties
+         possibleReplacements = relevantProperties
+                                |> List.filter
+                                   (\ elt -> elt /= elementToMutate)
+         replacement = safeGetNth "red" k possibleReplacements
+
+         mutatedProperties = replaceNth replacement j propertiesToMutate
+         mutatedSet = replaceNth mutatedProperties i transposedSet
+                      |> List.Extra.transpose
+     in
+       mutatedSet )
+  validSetGenerator
+  (Random.int 0 3)
+  (Random.int 0 2)
+  (Random.int 0 1)
+
+
+replaceNth : a -> Int -> List a -> List a
+replaceNth newVal index list =
+  if index < List.length list then
+    (List.take index list) ++ [newVal] ++ (List.drop (index + 1) list)
+  else
+    list
+                    
 cardsGenerator : Random.Generator (List Card)
 cardsGenerator = Random.list 3 cardGenerator
       

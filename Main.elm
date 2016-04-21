@@ -16,6 +16,6 @@ import Trainer
 --     , view = view
 --     }
 
--- main = Sandbox.main
+main = Sandbox.main
 
-main = Trainer.main
+-- main = Trainer.main
